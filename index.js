@@ -13,6 +13,39 @@ import CFonts from 'cfonts'
 import ejs from 'ejs'
 import timeout from 'connect-timeout'
 import createRouter from './lib/system/defineRoute.js'
+import { execSync } from 'child_process';
+
+export function getStorageInfo() {
+  try {
+    // Eksekusi perintah df di root directory
+    const output = execSync('df -k /').toString();
+    const lines = output.trim().split('\n');
+    const data = lines[1].split(/\s+/);
+
+    const total = parseInt(data[1]) * 1024; // Kilobyte to Byte
+    const used = parseInt(data[2]) * 1024;
+    const available = parseInt(data[3]) * 1024;
+    const percent = data[4];
+
+    return {
+      total,
+      used,
+      available,
+      percent,
+    };
+  } catch (err) {
+    console.error('Error fetching disk info:', err);
+    return null;
+  }
+}
+
+// Contoh penggunaan
+const storage = getStorageInfo();
+console.log(`Total: ${storage.total} bytes`);
+console.log(`Used: ${storage.used} bytes`);
+console.log(`Available: ${storage.available} bytes`);
+console.log(`Usage: ${storage.percent}`);
+
 const PORT = process.env.PORT || 3000
 
 const __filename = fileURLToPath(import.meta.url)
